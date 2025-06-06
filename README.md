@@ -25,3 +25,5 @@ Ambos:
 ```bash
 python main.py --srt --dub
 ```
+
+
