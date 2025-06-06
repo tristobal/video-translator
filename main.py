@@ -3,16 +3,19 @@ import subprocess
 import whisper
 import requests
 import argparse
+import asyncio
 from datetime import timedelta
-from TTS.api import TTS
+from edge_tts import Communicate
 
-INPUT_VIDEO = "input/video.mp4"
-AUDIO_FILE = "output/audio.wav"
+INPUT_VIDEO = "input/gardeners.world.2025.episode.01.S5801.mp4"
+#AUDIO_FILE = "output/audio.wav"
+AUDIO_FILE = "output/gardeners.world.2025.episode.01.S5801.wav"
 TRANSCRIPT_FILE = "output/transcript.txt"
 SRT_FILE = "output/translated.srt"
+DUBBED_MP3_FILE = "output/dubbed.mp3"
 DUBBED_AUDIO_FILE = "output/dubbed.wav"
 FINAL_VIDEO_FILE = "output/final_video.mp4"
-GROQ_API_KEY = "tu_api_key"
+GROQ_API_KEY = "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"
 
 os.makedirs("input", exist_ok=True)
 os.makedirs("output", exist_ok=True)
@@ -57,8 +60,17 @@ def generate_srt(segments, translations):
             f.write(f"{txt.strip()}\n\n")
 
 def synthesize_audio(text):
-    tts = TTS(model_name="tts_models/es/mai/tacotron2-DDC", progress_bar=False)
-    tts.tts_to_file(text=text, file_path=DUBBED_AUDIO_FILE)
+    voice = "es-ES-ElviraNeural"
+    async def run_tts():
+        communicate = Communicate(text=text, voice=voice)
+        await communicate.save(DUBBED_MP3_FILE)
+    asyncio.run(run_tts())
+
+    # Convertir a WAV (para ffmpeg)
+    subprocess.run([
+        "ffmpeg", "-y", "-i", DUBBED_MP3_FILE, "-ar", "16000", "-ac", "1",
+        "-c:a", "pcm_s16le", DUBBED_AUDIO_FILE
+    ], check=True)
 
 def merge_video():
     subprocess.run([
@@ -76,8 +88,8 @@ def main():
         print("Debe especificar al menos --srt o --dub")
         return
 
-    print("Extrayendo audio...")
-    extract_audio()
+    #print("Extrayendo audio...")
+    #extract_audio()
     print("Transcribiendo...")
     segments = transcribe()
     print("Traduciendo segmentos...")
