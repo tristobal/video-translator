@@ -15,7 +15,7 @@ SRT_FILE = "output/translated.srt"
 DUBBED_MP3_FILE = "output/dubbed.mp3"
 DUBBED_AUDIO_FILE = "output/dubbed.wav"
 FINAL_VIDEO_FILE = "output/final_video.mp4"
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "API_KEY"
 
 os.makedirs("input", exist_ok=True)
 os.makedirs("output", exist_ok=True)
